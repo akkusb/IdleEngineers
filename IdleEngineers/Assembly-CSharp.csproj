@@ -63,7 +63,6 @@
     <Compile Include="Assets\Models\EngineerModel.cs" />
     <Compile Include="Assets\Scripts\AutomaticVerticalSize.cs" />
     <Compile Include="Assets\Scripts\CompanyController.cs" />
-    <Compile Include="Assets\Scripts\UIController.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/Users/akkus/Documents/GitHub/IdleEngineers/IdleEngineers/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

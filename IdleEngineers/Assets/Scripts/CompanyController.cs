@@ -6,13 +6,26 @@ using UnityEngine.UI;
 
 public class CompanyController : MonoBehaviour {
 
-    double money = 0;
+    private double money
+    {
+        get
+        {
+            return company.Money;
+        }
+        set
+        {
+            company.Money = value;
+        }
+    }
+
     double moneyPerSecond = 0;
 
-    public Action<double> MoneyDidUpdate;
-    public Action<double> MoneyPerSecondDidUpdate;
+    private Action<double> MoneyDidUpdate;
+    private Action<double> MoneyPerSecondDidUpdate;
 
     public GameObject EngineerPrefab;
+    public Text MoneyText;
+
 
     public static CompanyController Instance { get; protected set; }
 
@@ -23,7 +36,9 @@ public class CompanyController : MonoBehaviour {
 	void Start () {
         Instance = this;
         engineerGameObjectMap = new Dictionary<EngineerModel, GameObject>();
-        company = new CompanyModel();
+        //company = new CompanyModel();
+        LoadButtonOnClick();
+        
         CreateEngineerGameObjects();
 
         InvokeRepeating("UpdateMoney", 0f, 1f);
@@ -31,7 +46,7 @@ public class CompanyController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+        UpdateMoneyText();
 	}
 
     void CreateEngineerGameObjects()
@@ -39,21 +54,50 @@ public class CompanyController : MonoBehaviour {
         foreach (EngineerModel engineer in company.engineers)
         {
             GameObject engineerGameObject = Instantiate(EngineerPrefab, Vector3.zero, Quaternion.identity);
-
+            Button button = engineerGameObject.GetComponent<Button>();
+            
+            button.onClick.AddListener(delegate {
+                UpgradeEngineerButtonOnClick(engineer);
+            });
             engineerGameObject.name = engineer.Name;
             engineerGameObject.transform.SetParent(this.transform, true);
 
             engineerGameObjectMap.Add(engineer, engineerGameObject);
+            UpdateEngineerUI(engineer);
         }
+    }
+
+    public void UpgradeEngineerButtonOnClick(EngineerModel engineer)
+    {
+        if (money >= engineer.CurrentPrice)
+        {
+            money -= engineer.CurrentPrice;
+            engineer.UpgradeEngineer();
+
+            UpdateEngineerUI(engineer);
+        }
+        else
+        {
+            Debug.LogError("Not enough money to upgrade the engineer!");
+        }
+        
     }
 
     void UpdateMoney()
     {
-        money += moneyPerSecond;
-        if (MoneyDidUpdate != null)
+        if (moneyPerSecond > 0)
         {
-            MoneyDidUpdate(money);
+            money += moneyPerSecond;
+            if (MoneyDidUpdate != null)
+            {
+                MoneyDidUpdate(money);
+            }
         }
+        else
+        {
+            UpdateMoneyPerSecond();
+        }
+        
     }
 
     void UpdateMoneyPerSecond()
@@ -69,6 +113,24 @@ public class CompanyController : MonoBehaviour {
         {
             MoneyPerSecondDidUpdate(moneyPerSecond);
         }
+    }
+
+    void EngineerDidUpdate()
+    {
+        // Refresh money per second
+        UpdateMoneyPerSecond();
+    }
+
+    void UpdateEngineerUI(EngineerModel engineer)
+    {
+        GameObject engineerGameObject = engineerGameObjectMap[engineer];
+        Text nameText = engineerGameObject.GetComponentInChildren<Text>();
+        nameText.text = engineer.Name + "  Price: " + engineer.CurrentPrice + " Earning: " + engineer.CurrentEarning;
+    }
+
+    void UpdateMoneyText()
+    {
+        MoneyText.text = money.ToString();
     }
 
     public void RegisterMoneyDidUpdateAction(Action<double> action)
@@ -90,4 +152,17 @@ public class CompanyController : MonoBehaviour {
     {
         MoneyPerSecondDidUpdate -= action;
     }
+
+    public void SaveButtonOnClick()
+    {
+        company.SaveToFile();
+    }
+
+    public void LoadButtonOnClick()
+    {
+        company = CompanyModel.LoadFromFile();
+        company.RegisterEngineerDidUpdateAction(EngineerDidUpdate);
+        UpdateMoneyPerSecond();
+    }
+
 }
