@@ -8,6 +8,7 @@ public class EngineerModel {
 
     Action<double> CurrentEarningDidUpdate;
 
+    public int Id;
     public string Name;
     public double CurrentPrice;
 
@@ -61,6 +62,6 @@ public class EngineerModel {
     {
         Level++;
         CurrentPrice = Math.Pow(4, Level);
-        CurrentEarning *= 2;
+        CurrentEarning = Math.Pow(2, Level);
     }
 }

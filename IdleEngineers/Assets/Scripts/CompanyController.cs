@@ -29,23 +29,30 @@ public class CompanyController : MonoBehaviour {
 
     public static CompanyController Instance { get; protected set; }
 
-    public CompanyModel company;
-    Dictionary<EngineerModel, GameObject> engineerGameObjectMap;
+    private CompanyModel company;
+    Dictionary<int, GameObject> engineerGameObjectMap;
 
-	// Use this for initialization
-	void Start () {
+    private void Awake()
+    {
         Instance = this;
-        engineerGameObjectMap = new Dictionary<EngineerModel, GameObject>();
-        //company = new CompanyModel();
-        LoadButtonOnClick();
-        
+        engineerGameObjectMap = new Dictionary<int, GameObject>();
+        CreateCompany();
         CreateEngineerGameObjects();
-
-        InvokeRepeating("UpdateMoney", 0f, 1f);
     }
+
+    //// Use this for initialization
+    //void Start () {
+    //    Instance = this;
+    //    engineerGameObjectMap = new Dictionary<EngineerModel, GameObject>();
+    //    //company = new CompanyModel();
+    //    //LoadButtonOnClick();
+        
+    //    CreateEngineerGameObjects();
+    //}
 	
 	// Update is called once per frame
 	void Update () {
+        UpdateMoney();
         UpdateMoneyText();
 	}
 
@@ -55,15 +62,49 @@ public class CompanyController : MonoBehaviour {
         {
             GameObject engineerGameObject = Instantiate(EngineerPrefab, Vector3.zero, Quaternion.identity);
             Button button = engineerGameObject.GetComponent<Button>();
-            
+            int engineerId = engineer.Id;
             button.onClick.AddListener(delegate {
-                UpgradeEngineerButtonOnClick(engineer);
+                UpgradeEngineerButtonOnClick(GetEngineerModelById(engineerId));
             });
             engineerGameObject.name = engineer.Name;
             engineerGameObject.transform.SetParent(this.transform, true);
 
-            engineerGameObjectMap.Add(engineer, engineerGameObject);
+            engineerGameObjectMap.Add(engineer.Id, engineerGameObject);
             UpdateEngineerUI(engineer);
+        }
+    }
+
+    void RefreshEngineerGameObjectMap()
+    {
+        foreach (EngineerModel engineer in company.engineers)
+        {
+            UpdateEngineerUI(engineer);
+            //if (engineerGameObjectMap.ContainsKey(engineer.Id))
+            //{
+
+            //}
+            //GameObject engineerGameObject = engineerGameObjectMap[engineer.Id];
+
+            //engineerGameObjectMap.Add(engineer.Id, engineerGameObject);
+            //UpdateEngineerUI(engineer);
+        }
+    }
+
+    EngineerModel GetEngineerModelById(int Id)
+    {
+        return company.engineers.Find(engineer => engineer.Id == Id);
+    }
+
+    GameObject GetEngineerGameObjectByEngineer(EngineerModel engineer)
+    {
+        int Id = engineer.Id;
+        if(engineerGameObjectMap.ContainsKey(Id))
+        {
+            return engineerGameObjectMap[Id];
+        }
+        else
+        {
+            return null;
         }
     }
 
@@ -85,9 +126,11 @@ public class CompanyController : MonoBehaviour {
 
     void UpdateMoney()
     {
+        
         if (moneyPerSecond > 0)
         {
-            money += moneyPerSecond;
+            money += Time.deltaTime * moneyPerSecond;
+            //money += moneyPerSecond;
             if (MoneyDidUpdate != null)
             {
                 MoneyDidUpdate(money);
@@ -123,14 +166,16 @@ public class CompanyController : MonoBehaviour {
 
     void UpdateEngineerUI(EngineerModel engineer)
     {
-        GameObject engineerGameObject = engineerGameObjectMap[engineer];
+        GameObject engineerGameObject = engineerGameObjectMap[engineer.Id];
         Text nameText = engineerGameObject.GetComponentInChildren<Text>();
         nameText.text = engineer.Name + "  Price: " + engineer.CurrentPrice + " Earning: " + engineer.CurrentEarning;
     }
 
     void UpdateMoneyText()
     {
-        MoneyText.text = money.ToString();
+        string moneyText = Math.Floor(money).ToString();
+        
+        MoneyText.text = moneyText;
     }
 
     public void RegisterMoneyDidUpdateAction(Action<double> action)
@@ -161,8 +206,22 @@ public class CompanyController : MonoBehaviour {
     public void LoadButtonOnClick()
     {
         company = CompanyModel.LoadFromFile();
+        RefreshEngineerGameObjectMap();
         company.RegisterEngineerDidUpdateAction(EngineerDidUpdate);
         UpdateMoneyPerSecond();
+    }
+
+    public void CreateCompany()
+    {
+        //Test
+
+        company = new CompanyModel();
+        company.RegisterEngineerDidUpdateAction(EngineerDidUpdate);
+        UpdateMoneyPerSecond();
+
+        //Prod
+
+        //LoadButtonOnClick();
     }
 
 }
