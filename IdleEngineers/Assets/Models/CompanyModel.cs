@@ -108,27 +108,41 @@ public class CompanyModel{
     {
         this.engineers = new List<EngineerModel>();
 
-        EngineerModel engineer = new EngineerModel();
-        engineer.Id = 1;
-        engineer.Name = "Developer";
-        engineer.CurrentPrice = 1;
-        engineer.CurrentEarning = 1;
-        engineer.Level = 1;
-        engineer.OrderNumber = 0;
-        engineer.RegisterCurrentEarningDidUpdateAction(EngineerEarningDidUpdate);
+        for (int i = 1; i < 16; i++)
+        {
+            EngineerModel engineer = new EngineerModel();
+            engineer.Id = i;
+            engineer.Name = "Developer " + i;
+            engineer.CurrentPrice = i;
+            engineer.CurrentEarning = i;
+            engineer.Level = i;
+            engineer.OrderNumber = i-1;
+            engineer.RegisterCurrentEarningDidUpdateAction(EngineerEarningDidUpdate);
 
-        this.engineers.Add(engineer);
+            this.engineers.Add(engineer);
+        }
 
-        EngineerModel engineer2 = new EngineerModel();
-        engineer2.Id = 2;
-        engineer2.Name = "Developer2";
-        engineer2.CurrentPrice = 2;
-        engineer2.CurrentEarning = 2;
-        engineer2.Level = 1;
-        engineer2.OrderNumber = 1;
-        engineer2.RegisterCurrentEarningDidUpdateAction(EngineerEarningDidUpdate);
+        //EngineerModel engineer = new EngineerModel();
+        //engineer.Id = 1;
+        //engineer.Name = "Developer";
+        //engineer.CurrentPrice = 1;
+        //engineer.CurrentEarning = 1;
+        //engineer.Level = 1;
+        //engineer.OrderNumber = 0;
+        //engineer.RegisterCurrentEarningDidUpdateAction(EngineerEarningDidUpdate);
 
-        this.engineers.Add(engineer2);
+        //this.engineers.Add(engineer);
+
+        //EngineerModel engineer2 = new EngineerModel();
+        //engineer2.Id = 2;
+        //engineer2.Name = "Developer2";
+        //engineer2.CurrentPrice = 2;
+        //engineer2.CurrentEarning = 2;
+        //engineer2.Level = 1;
+        //engineer2.OrderNumber = 1;
+        //engineer2.RegisterCurrentEarningDidUpdateAction(EngineerEarningDidUpdate);
+
+        //this.engineers.Add(engineer2);
     }
 
     void EngineerEarningDidUpdate(double earning)

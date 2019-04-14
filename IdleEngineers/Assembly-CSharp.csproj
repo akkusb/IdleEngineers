@@ -63,8 +63,10 @@
   <ItemGroup>
     <Compile Include="Assets\Models\CompanyModel.cs" />
     <Compile Include="Assets\Models\EngineerModel.cs" />
+    <Compile Include="Assets\Scripts\AutomaticHorizontalSize.cs" />
     <Compile Include="Assets\Scripts\AutomaticVerticalSize.cs" />
     <Compile Include="Assets\Scripts\CompanyController.cs" />
+    <Compile Include="Assets\Scripts\Managers\BottomMenuManager.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>F:/Unity/Projects/IdleEngineers/IdleEngineers/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
